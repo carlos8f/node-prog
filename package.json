@@ -1,0 +1,27 @@
+{
+  "name": "prog",
+  "version": "0.0.0",
+  "description": "Prints the source code of a program. Nice screen saver!",
+  "main": "index.js",
+  "bin": "./bin/prog.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/carlos8f/node-prog.git"
+  },
+  "keywords": ["effect", "screensaver", "art", "thematrix", "fun", "toy", "experiment"],
+  "author": {
+    "name": "Carlos Rodriguez",
+    "email": "carlos@s8f.org",
+    "url": "http://s8f.org/"
+  },
+  "preferGlobal": true,
+  "license": "MIT",
+  "dependencies": {
+    "glob": "~3.1.11",
+    "brake": "~0.1.0",
+    "optimist": "~0.3.4"
+  }
+}
