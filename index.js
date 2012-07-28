@@ -30,14 +30,26 @@ function Prog(options) {
   else {
     var self = this;
     var tasks = [];
-    (options.patterns || ['*.json', '*.js', '*.coffee', '**/*.js', '**/*.coffee', '*.sh', '**/*.sh', '*.md', '*.markdown'])
-      .forEach(function(pattern) {
-        tasks.push(function(done) {
-          self.addPattern.call(self, pattern, done);
-        });
+    if (!options.patterns) {
+      options.patterns = [];
+      ['json', 'js', 'coffee', 'sh', 'c', 'cpp'].forEach(function(ext) {
+        options.patterns.push('*.' + ext);
+        options.patterns.push('**/*.' + ext);
       });
-    async.parallel(tasks, function(files) {
-      files.forEach(self.onMatch.bind(self));
+    }
+    options.patterns.forEach(function(pattern) {
+      tasks.push(function(done) {
+        self.addPattern.call(self, pattern, done);
+      });
+    });
+    async.parallel(tasks, function(err, results) {
+      var files = [];
+      results.forEach(function(arr) {
+        files = files.concat(arr);
+      });
+      if (files.length === 0) {
+        self.emit('end');
+      }
     });
   }
 }
@@ -48,15 +60,17 @@ Prog.prototype.addPattern = function(pattern, done) {
   var self = this;
   glob(pattern)
     .on('match', this.onMatch.bind(this))
-    .on('end', done);
+    .on('end', function(files) {
+      done(null, files);
+    });
 };
 
 Prog.prototype.onMatch = function(file) {
   if (this.ignore && this.ignore.test(file)) return;
   this.stack.push(file);
   if (!this.started) {
-    this.started = true;
     this.end();
+    this.started = true;
   }
 }
 
