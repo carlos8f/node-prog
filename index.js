@@ -4,6 +4,7 @@ var glob = require('glob')
   , inherits = require('util').inherits
   , brake = require('brake')
   , format = require('util').format
+  , extensions = require('./extensions')
   , async = require('async')
   ;
 
@@ -32,7 +33,7 @@ function Prog(options) {
     var tasks = [];
     if (!options.patterns) {
       options.patterns = [];
-      ['json', 'js', 'coffee', 'sh', 'c', 'cpp'].forEach(function(ext) {
+      extensions.forEach(function(ext) {
         options.patterns.push('*.' + ext);
         options.patterns.push('**/*.' + ext);
       });
@@ -82,9 +83,9 @@ Prog.prototype.end = function(chunk) {
   if (chunk) {
     this.write(chunk);
   }
+  this.emit('data', '\n');
   var file = this.stack.pop();
   if (!file) {
-    this.emit('data', '\n');
     if (this.repeat) {
       this.stack = this.pile;
       this.pile = [];
@@ -94,14 +95,18 @@ Prog.prototype.end = function(chunk) {
     this.emit('end');
     return;
   }
-  this.pile.unshift(file);
-  this.header(file);
-  fs.createReadStream(file).pipe(this);
+  var self = this;
+  fs.stat(file, function(err, stats) {
+    if (stats.isFile()) {
+      self.pile.unshift(file);
+      self.header(file);
+      fs.createReadStream(file).pipe(self);
+    }
+  });
 };
 
 Prog.prototype.header = function(file) {
   var sep = repeat('-', file.length);
-  if (this.started) this.emit('data', '\n');
   this.emit('data', format('%s\n%s\n%s\n', sep, file, sep));
 };
 
