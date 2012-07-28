@@ -1,6 +1,6 @@
 {
   "name": "prog",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Prints the source code of a program. Nice screen saver!",
   "main": "index.js",
   "bin": "./bin/prog.js",
