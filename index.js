@@ -10,7 +10,7 @@ var glob = require('glob')
 
 module.exports = function prog(options) {
   options || (options = {});
-  return new Prog(options).pipe(brake(options.rate || 100));
+  return new Prog(options).pipe(brake(options.rate || 500));
 };
 
 function Prog(options) {
@@ -23,8 +23,12 @@ function Prog(options) {
   if (typeof options.ignore === 'undefined') {
     options.ignore = '/?node_modules/';
   }
+  if (typeof options.indent === 'undefined') {
+    options.indent = 40;
+  }
   this.ignore = options.ignore && new RegExp(options.ignore);
   this.repeat = options.repeat;
+  this.indent = options.indent;
   if (options.files && options.files.length) {
     options.files.forEach(this.onMatch.bind(this));
   }
@@ -73,9 +77,12 @@ Prog.prototype.onMatch = function(file) {
     this.end();
     this.started = true;
   }
-}
+};
 
 Prog.prototype.write = function(chunk) {
+  if (this.indent) {
+    chunk = chunk.toString().replace(/\n/g, '\n' + repeat(' ', this.indent));
+  }
   this.emit('data', chunk);
 };
 
@@ -83,7 +90,7 @@ Prog.prototype.end = function(chunk) {
   if (chunk) {
     this.write(chunk);
   }
-  this.emit('data', '\n');
+  this.write('\n');
   var file = this.stack.pop();
   if (!file) {
     if (this.repeat) {
@@ -107,7 +114,7 @@ Prog.prototype.end = function(chunk) {
 
 Prog.prototype.header = function(file) {
   var sep = repeat('-', file.length);
-  this.emit('data', format('%s\n%s\n%s\n', sep, file, sep));
+  this.write(format('%s\n%s\n%s\n', sep, file, sep));
 };
 
 function repeat(str, len) {

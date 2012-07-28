@@ -11,4 +11,11 @@ if (argv.help) {
 if (typeof argv.pattern === 'string') {
   argv.pattern = [argv.pattern];
 }
-require('../')({files: argv._, rate: argv.rate, patterns: argv.pattern, repeat: argv.repeat, ignore: argv.ignore}).pipe(process.stdout);
+require('../')({
+  files: argv._,
+  rate: argv.rate,
+  patterns: argv.pattern,
+  repeat: argv.repeat,
+  ignore: argv.ignore,
+  indent: argv.indent
+}).pipe(process.stdout);
