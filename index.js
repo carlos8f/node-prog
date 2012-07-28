@@ -4,6 +4,7 @@ var glob = require('glob')
   , inherits = require('util').inherits
   , brake = require('brake')
   , format = require('util').format
+  , async = require('async')
   ;
 
 module.exports = function prog(options) {
@@ -27,20 +28,27 @@ function Prog(options) {
     options.files.forEach(this.onMatch.bind(this));
   }
   else {
+    var self = this;
+    var tasks = [];
     (options.patterns || ['*.json', '*.js', '*.coffee', '**/*.js', '**/*.coffee', '*.sh', '**/*.sh', '*.md', '*.markdown'])
-      .forEach(this.addPattern.bind(this));
+      .forEach(function(pattern) {
+        tasks.push(function(done) {
+          self.addPattern.call(self, pattern, done);
+        });
+      });
+    async.parallel(tasks, function(files) {
+      files.forEach(self.onMatch.bind(self));
+    });
   }
 }
 inherits(Prog, Stream);
 module.exports.Prog = Prog;
 
-Prog.prototype.addPattern = function(pattern) {
+Prog.prototype.addPattern = function(pattern, done) {
   var self = this;
   glob(pattern)
     .on('match', this.onMatch.bind(this))
-    .on('end', function() {
-      if (!self.started) self.emit('end');
-    });
+    .on('end', done);
 };
 
 Prog.prototype.onMatch = function(file) {

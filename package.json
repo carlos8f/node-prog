@@ -11,7 +11,15 @@
     "type": "git",
     "url": "git://github.com/carlos8f/node-prog.git"
   },
-  "keywords": ["effect", "screensaver", "art", "thematrix", "fun", "toy", "experiment"],
+  "keywords": [
+    "effect",
+    "screensaver",
+    "art",
+    "thematrix",
+    "fun",
+    "toy",
+    "experiment"
+  ],
   "author": {
     "name": "Carlos Rodriguez",
     "email": "carlos@s8f.org",
@@ -22,6 +30,7 @@
   "dependencies": {
     "glob": "~3.1.11",
     "brake": "~0.1.0",
-    "optimist": "~0.3.4"
+    "optimist": "~0.3.4",
+    "async": "~0.1.22"
   }
 }
